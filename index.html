@@ -4,8 +4,8 @@
     <title>01.01 - Basic scene</title>
     <script src="libs/three.js"></script>
     <script src="libs/stats.min.js"></script>
-    <script src="libs/OrbitControls.js"></script>
     <script src="libs/perlin.js"></script>
+    <script src="libs/FlyControls.js"></script>
     <style>
         body {
             /* set margin to 0 and overflow to hidden, to go fullscreen */
@@ -22,6 +22,7 @@
     var stats;
     var cameraControl;
     var plane, mat;
+    var clock = new THREE.Clock();
     
     function init() {
         scene = new THREE.Scene();
@@ -43,12 +44,18 @@
         spotLight.shadowCameraFar = 50;
         spotLight.castShadow = true;
 	
+	controls = new THREE.FlyControls(camera);
+	controls.movementSpeed = 1000;
+	controls.domElement = document.body;
+	controls.rollSpeed = Math.PI / 24;
+	controls.autoForward = false;
+	controls.dragToLook = false;
+	
         scene.add(spotLight);
 	
         camera.position.set(15, 16, 13);
         camera.lookAt(scene.position);
 	
-        cameraControl = new THREE.OrbitControls(camera);
         addStatsObject();
         document.body.appendChild(renderer.domElement);
         render();
@@ -81,8 +88,11 @@
     }
     
     function render() {
+	var delta = clock.getDelta();
+	controls.movementSpeed = 20;
+	controls.update(delta);
+	
         stats.update();
-        cameraControl.update();
         requestAnimationFrame(render);
         renderer.render(scene, camera);
     }
