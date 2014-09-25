@@ -181,7 +181,7 @@
     function handleResize() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
-        camera.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(window.innerWidth, window.innerHeight);
     }
     
     var projector = new THREE.Projector();
