@@ -16,6 +16,7 @@
 </head>
 <script>
     'use strict';
+    
     // global variables
     var renderer;
     var scene;
@@ -167,6 +168,7 @@
     }
     
     var projector = new THREE.Projector();
+    var selectedObject;
     
     function onDocumentMouseDown(){
 	event.preventDefault();
@@ -178,11 +180,61 @@
 	var intersects = raycaster.intersectObjects(cubes);
 	
 	if (intersects.length > 0) {
+	    selectedObject = intersects[0].object;
 	    intersects[0].object.material.transparent = true;
 	    intersects[0].object.material.color = new THREE.Color(0x000fff);
 	}
     }
     
+    function detectCollision(objet, directionVector) {
+	for(var vertexIndex = 0; vertexIndex < objet.geometry.vertices.length; vertexIndex++){
+	    var localVertex = objet.geometry.vertices[vertexIndex].clone();
+	    var globalVertex = localVertex.applyMatrix4(objet.matrix);
+	    
+	    var ray = new THREE.Raycaster(globalVertex, directionVector.clone().normalize());
+	    var collisionResults = ray.intersectObjects(cubes);
+	    if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
+		return true;
+	    }
+	}
+	return false;
+    }
+    
+    function move(direction) {
+	if (!selectedObject) {
+	    return;
+	}
+	
+	if (!detectCollision(selectedObject, direction)) {
+	    selectedObject.position.x += direction.x;
+	    selectedObject.position.y += direction.y;
+	    selectedObject.position.z += direction.z;
+	}
+    }
+    
+    function checkKey(e){	
+	e = e || window.event;
+	var factor = 0.3;
+	
+	if (e.keyCode == '81') {
+	    //left
+	    move(new THREE.Vector3(0, 0, factor));
+	}else if (e.keyCode == '90') {
+	    //up
+	    move(new THREE.Vector3(-factor, 0, 0));
+	}
+	else if (e.keyCode == '68') {
+	    //right
+	    move(new THREE.Vector3(0, 0, -factor));
+	}
+	else if (e.keyCode == '83') {
+	    //down
+	    move(new THREE.Vector3(factor, 0, 0));
+	}
+	e.preventDefault();
+    }
+    
+    window.onkeydown = checkKey;
     window.onmousedown = onDocumentMouseDown;
 
     // calls the init function when the window is done loading.
