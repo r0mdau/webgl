@@ -15,7 +15,7 @@
     </style>
 </head>
 <script>
-
+    'use strict';
     // global variables
     var renderer;
     var scene;
@@ -152,42 +152,26 @@
      * for future renders
      */
     function render() {
-        
-        var rotSpeed = control.rotationSpeed;
-        //camera.position.x = camera.position.x * Math.cos(rotSpeed) + camera.position.z * Math.sin(rotSpeed);
-        //camera.position.z = camera.position.z * Math.cos(rotSpeed) - camera.position.x * Math.sin(rotSpeed);
-        //camera.lookAt(scene.position);
-
         stats.update();
-
         cameraControl.update();
-
-        //change opacity
         scene.getObjectByName('cube').material.opacity = control.opacity;
-
-        //change color
         scene.getObjectByName('cube').material.color = new THREE.Color(control.color);
-
-        // render using requestAnimationFrame
         requestAnimationFrame(render);
         renderer.render(scene, camera);
     }
-
-
-    /**
-     * Function handles the resize event. This make sure the camera and the renderer
-     * are updated at the correct moment.
-     */
+    
     function handleResize() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
-        camera.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(window.innerWidth, window.innerHeight);
     }
     
     var projector = new THREE.Projector();
     
     function onDocumentMouseDown(){
-	var vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, (event.clientY / window.innerHeight) * 2 + 1, 0.5);
+	event.preventDefault();
+	
+	var vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, - (event.clientY / window.innerHeight) * 2 + 1, 0.5);
 	projector.unprojectVector(vector, camera);
 	
 	var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
